@@ -9,15 +9,13 @@ export class Navigator {
     async openPage() {
         await this.driver.get('http://localhost:4200/welcomeee');
         let image: string;
-        await this.recognizeById('code');
+        const code = await this.recognizeById('code');
     }
 
-    async recognizeById(id: string) {
+    async recognizeById(id: string): Promise<string> {
         const elem = await this.driver.wait(until.elementLocated(By.id(id)));
         const imageString = await elem.takeScreenshot();
         const image = ImageHandler.addPrefix(imageString);
-        //const data = await this.img.recognize(image);
-        //console.log(data);
         const fileName = await ImageHandler.saveImage(image, 'code.png');
         console.log('Saved image as', fileName);
         await ImageHandler.filter();
@@ -29,5 +27,8 @@ export class Navigator {
         let resultc = await this.img.recognize(ImageHandler.addPrefix(cleanedImage));
         console.log('Recognized text:', resultc.text.trim());
         console.log('Confidence:', resultc.confidence);
+        const chosen: string = resultc.confidence < resultf.confidence ? resultf.text : resultc.text;
+        console.log('Chosen captcha:', chosen);
+        return chosen;
     }
 }
