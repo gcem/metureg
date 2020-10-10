@@ -12,18 +12,22 @@ if IMDIR[-1] != '/':
 
 img = cv2.imread(IMDIR + 'code.png')
 
+# set the 2-px-wide border around the picture to white
 avg = [[255, 255] + [sum(px) / len(px) for px in row[2:-2]] + [255, 255] for row in img]
 ar = numpy.array(avg)
 ar[[0, 1, -1, -2]] = [255] * len(avg[0])
 
+# true: white, false: black
 boolar = ar > THRESHOLD
+def boolToImg(ba):
+    return numpy.array([[255 if px else 0 for px in row] for row in ba])
 
-thresholdImage = numpy.array([[255 if px else 0 for px in row] for row in boolar])
+thresholdImage = boolToImg(boolar)
 cv2.imwrite(IMDIR + 'threshold.png', thresholdImage)
 
 visited = numpy.array([[False] * len(boolar[0])] * len(boolar))
 counts = numpy.array([[0] * len(boolar[0])] * len(boolar))
-final = numpy.array([[255] * len(boolar[0])] * len(boolar))
+boolresult = numpy.array([[True] * len(boolar[0])] * len(boolar))
 
 def visit(x, y):
     if visited[x][y]:
@@ -37,11 +41,30 @@ for x in range(2, len(boolar) - 2):
     for y in range(2, len(boolar[0]) - 2):
         ls = visit(x, y)
         size = len(ls)
-        #print("at coordinates ", x, ", ", y, ":")
-        #print("size is ", size)
 
         if len(ls) >= MINSIZE:
             for coords in ls:
-                final[coords[0]][coords[1]] = 0
+                boolresult[coords[0]][coords[1]] = 0
                 
-cv2.imwrite(IMDIR + 'filtered.png', final)
+result = boolToImg(boolresult)
+cv2.imwrite(IMDIR + 'filtered.png', result)
+
+def horizontal():
+    for x in range(2, len(boolar) - 2):
+        for y in range(2, len(boolar[0]) - 2):
+            if not boolresult[x, y] and boolresult[x,y-1] and boolresult[x,y+1]:
+                boolresult[x, y] = True
+
+def vertical():
+    for x in range(2, len(boolar) - 2):
+        for y in range(2, len(boolar[0]) - 2):
+            if not boolresult[x, y] and boolresult[x-1,y] and boolresult[x+1,y]:
+                boolresult[x, y] = True
+
+horizontal()
+vertical()
+horizontal()
+vertical()
+
+result = boolToImg(boolresult)
+cv2.imwrite(IMDIR + 'cleaned.png', result)
