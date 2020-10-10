@@ -43,6 +43,8 @@ class ImageHandler {
             ImageHandler._PATH = '../saved/';
             console.log('IMAGES_PATH variable does not exist. Using default path.')
         }
+        if (ImageHandler._PATH[-1] != '/')
+            ImageHandler._PATH += '/';
         return ImageHandler._PATH;
     }
 
@@ -124,6 +126,6 @@ class CommandRunner {
     const driver = await new Builder().forBrowser(Browser.FIREFOX).build();
     const img = await ImageHandler.build();
     const nav = new Navigator(driver, img);
-    nav.openPage();
+    await nav.openPage();
     await img.destroy();
 })();
