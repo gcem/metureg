@@ -1,3 +1,6 @@
 node_modules
 .vscode
 *.traineddata
+
+# credentials.json can be ignored using this command:
+# git update-index --skip-worktree credentials.json
