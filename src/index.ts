@@ -24,13 +24,15 @@ class Navigator {
         //console.log(data);
         const fileName = await ImageHandler.saveImage(image, 'code.png');
         console.log('Saved image as', fileName);
-        await new Promise(resolve => setTimeout(resolve, 2000));
         await ImageHandler.filter();
-        await new Promise(resolve => setTimeout(resolve, 2000));
         const filteredImage = await ImageHandler.readImage('filtered.png');
-        const { text, confidence } = await this.img.recognize(ImageHandler.addPrefix(filteredImage));
-        console.log('Recognized text:', text.trim());
-        console.log('Confidence:', confidence);
+        let resultf = await this.img.recognize(ImageHandler.addPrefix(filteredImage));
+        console.log('Recognized text:', resultf.text.trim());
+        console.log('Confidence:', resultf.confidence);
+        const cleanedImage = await ImageHandler.readImage('cleaned.png');
+        let resultc = await this.img.recognize(ImageHandler.addPrefix(cleanedImage));
+        console.log('Recognized text:', resultc.text.trim());
+        console.log('Confidence:', resultc.confidence);
     }
 }
 
@@ -43,7 +45,7 @@ class ImageHandler {
             ImageHandler._PATH = '../saved/';
             console.log('IMAGES_PATH variable does not exist. Using default path.')
         }
-        if (ImageHandler._PATH[-1] != '/')
+        if (!ImageHandler._PATH.endsWith('/'))
             ImageHandler._PATH += '/';
         return ImageHandler._PATH;
     }
@@ -72,7 +74,6 @@ class ImageHandler {
     async recognize(image: string): Promise<any> {
         const { data: { text, confidence } } =
             await this.tesWorker.recognize(image);
-        await this.tesWorker.terminate();
         return { text: text.trim(), confidence };
     }
 
@@ -124,8 +125,13 @@ class CommandRunner {
 
 (async () => {
     const driver = await new Builder().forBrowser(Browser.FIREFOX).build();
-    const img = await ImageHandler.build();
-    const nav = new Navigator(driver, img);
-    await nav.openPage();
-    await img.destroy();
+    try {
+        const img = await ImageHandler.build();
+        const nav = new Navigator(driver, img);
+        await nav.openPage();
+        await img.destroy();
+    }
+    finally {
+        await driver.close();
+    }
 })();
