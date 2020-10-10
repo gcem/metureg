@@ -1,0 +1,22 @@
+{
+  "name": "selen-ocr",
+  "version": "1.0.0",
+  "description": "",
+  "main": "build/index.js",
+  "scripts": {
+    "start": "tsc && IMAGES_PATH='/home/cem/Pictures/selenocr/' node --trace-warnings build/index.js",
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/selenium-webdriver": "^4.0.9",
+    "@types/tesseract.js": "0.0.2",
+    "base64-to-image": "^1.0.2",
+    "image-to-base64": "^2.1.1",
+    "selenium-webdriver": "^4.0.0-alpha.7",
+    "tesseract.js": "^2.1.3",
+    "typescript": "^4.0.3"
+  }
+}
