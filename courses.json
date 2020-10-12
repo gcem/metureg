@@ -1,0 +1,19 @@
+{
+    "courseList": [
+        {
+            "courseCode": 1230456,
+            "program": "Major",
+            "sections": [1, 3, "5-8", "10", 12]
+        },
+        {
+            "courseCode": "1230457",
+            "program": "Double Major",
+            "sections": [5]
+        },
+        {
+            "courseCode": 1230458,
+            "program": "Minor",
+            "sections": []
+        }
+    ]
+}
