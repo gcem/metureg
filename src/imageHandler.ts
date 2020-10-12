@@ -38,6 +38,23 @@ export class ImageHandler {
         await this.tesWorker.terminate();
     }
 
+    async recognizeCaptchas(): Promise<string> {
+        const filteredImage = await ImageHandler.readImage('filtered.png');
+        let resultf = await this.recognize(ImageHandler.addPrefix(filteredImage));
+        console.log('Recognized text:', resultf.text.trim());
+        console.log('Confidence:', resultf.confidence);
+
+        const cleanedImage = await ImageHandler.readImage('cleaned.png');
+        let resultc = await this.recognize(ImageHandler.addPrefix(cleanedImage));
+        console.log('Recognized text:', resultc.text.trim());
+        console.log('Confidence:', resultc.confidence);
+
+        // choose the OCR result with higher confidence level
+        const chosen: string = resultc.confidence < resultf.confidence ? resultf.text : resultc.text;
+        console.log('Chosen captcha:', chosen);
+        return chosen;
+    }
+
     async recognize(image: string): Promise<any> {
         const { data: { text, confidence } } = await this.tesWorker.recognize(image);
         return { text: text.trim(), confidence };
@@ -65,8 +82,7 @@ export class ImageHandler {
     }
 
     static async readImage(fileName: string): Promise<string> {
-        console.log('read from path:', this.PATH);
-        console.log('file:', fileName);
+        console.log('read image:', this.PATH + fileName);
         return await imagebase64(this.PATH + fileName);
     }
 }

@@ -26,7 +26,6 @@ thresholdImage = boolToImg(boolar)
 cv2.imwrite(IMDIR + 'threshold.png', thresholdImage)
 
 visited = numpy.array([[False] * len(boolar[0])] * len(boolar))
-counts = numpy.array([[0] * len(boolar[0])] * len(boolar))
 boolresult = numpy.array([[True] * len(boolar[0])] * len(boolar))
 
 def visit(x, y):
@@ -37,14 +36,34 @@ def visit(x, y):
         return []
     return [[x, y]] + visit(x, y-1) + visit(x, y+1) + visit(x-1, y) + visit(x+1, y)
 
-for x in range(2, len(boolar) - 2):
-    for y in range(2, len(boolar[0]) - 2):
-        ls = visit(x, y)
-        size = len(ls)
+def removeIsolated():
+    for x in range(2, len(boolar) - 2):
+        for y in range(2, len(boolar[0]) - 2):
+            ls = visit(x, y)
+            size = len(ls)
 
-        if len(ls) >= MINSIZE:
-            for coords in ls:
-                boolresult[coords[0]][coords[1]] = 0
+            if len(ls) >= MINSIZE:
+                for coords in ls:
+                    boolresult[coords[0]][coords[1]] = 0
+
+removeIsolated()
+boolar = boolresult
+
+zeroone = numpy.ones(boolar.shape)
+zeroone[boolar] = 0
+
+def fillCoveredPixels():
+    for x in range(2, len(boolar) - 2):
+        for y in range(2, len(boolar[0]) - 2):
+            count = zeroone[x, y-1] + zeroone[x, y+1] + zeroone[x-1, y] + zeroone[x+1, y]
+            if count >= 3:
+                boolresult[x, y] = False
+                zeroone[x, y] = 1
+
+fillCoveredPixels()
+fillCoveredPixels()
+fillCoveredPixels()
+boolar = boolresult
                 
 result = boolToImg(boolresult)
 cv2.imwrite(IMDIR + 'filtered.png', result)

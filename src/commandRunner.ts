@@ -10,8 +10,10 @@ export class CommandRunner {
                     reject('Python script exited with an error');
                 }
                 console.log('executed python script');
-                console.log('output:\n', stdout);
-                console.log('stderr:\n', stderr);
+                if (stdout.length > 0)
+                    console.log('output:\n', stdout);
+                if (stderr.length > 0)
+                    console.log('stderr:\n', stderr);
                 resolve();
             });
         });

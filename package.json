@@ -5,8 +5,10 @@
   "main": "build/index.js",
   "scripts": {
     "start": "npm run build && npm run run",
-    "run": "IMAGES_PATH='/home/cem/Pictures/selenocr/' node --trace-warnings build/index.js",
+    "rec": "npm run build && npm run recognize",
     "build": "tsc",
+    "run": "IMAGES_PATH='/home/cem/Pictures/selenocr/' node --trace-warnings build/index.js",
+    "recognize": "IMAGES_PATH='/home/cem/Pictures/selenocr/' node build/index.js recognize",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
