@@ -73,6 +73,7 @@ export class Navigator {
                 // first in the list => no keypress
         }
         const loginButton = await this.driver.wait(until.elementLocated(By.name('submitLogin')));
+        await Utils.delay(200);
         await loginButton.click();
     }
 
@@ -86,12 +87,12 @@ export class Navigator {
 
     async queryLoop() {
         let available: CourseSection | null = null;
+        let rows: WebElement[] = [];
         // this loop ends when there is an available slot on a requested course
         while (true) {
             for (let course of this.courses) {
-                let rows: WebElement[] = [];
-
-                this.driver.switchTo().frame(await this.driver.wait(until.elementLocated(By.css('iframe#container'))));
+                await this.driver.switchTo().defaultContent();
+                await this.driver.switchTo().frame(await this.driver.wait(until.elementLocated(By.css('iframe#container'))));
                 // this loop ends when a correct captcha is found
                 while (true) {
                     const submitButton = await this.driver.wait(until.elementLocated(By.name('submit_search')), 60000);
@@ -104,7 +105,9 @@ export class Navigator {
                     await captchaInput.clear();
                     await courseCodeInput.sendKeys(course.courseCode);
                     await captchaInput.sendKeys(code, Key.ENTER);
-                    await Utils.delay(1000);
+                    if (rows.length)
+                        await this.driver.wait(until.stalenessOf(rows[0]));
+                    await Utils.delay(300);
                     rows = await this.driver.wait(until.elementsLocated(By.css('table > tbody > tr')), 10000)
                         .catch(reason => { console.log('Recognition failed. Will try again'); return []; });
                     if (rows.length)
@@ -117,11 +120,10 @@ export class Navigator {
                     const section = Number(await columns[0].getText());
                     const capacity = Number(await columns[columns.length - 2].getText());
                     const used = Number(await columns[columns.length - 1].getText());
-                    console.log('Section:', section, '\tCapacity:', capacity, '\tUsed:', used);
+                    console.log('Section:', section, '\tCapacity:', capacity, '\tUsed:', used, used < capacity ? '\tAVAILABLE' : '');
                     if (used < capacity) {
-                        console.log('AVAILABLE!');
                         if (course.sections.has(section) || course.sections.size == 0) {
-                            console.log('Found a requested place. Go to registration')
+                            console.log('Found place in section', section, 'of course', course, '... Go to registration')
                             available = {
                                 courseCode: course.courseCode,
                                 section: section,
@@ -133,6 +135,10 @@ export class Navigator {
                 }
                 if (available)
                     break;
+                // get a random delay between 2 and 4 seconds (1 second will be added in the loop)
+                const randomDelay = Math.floor(Math.random() * 2000 + 2000);
+                console.log('No available place in preferred sections. Random delay in milliseconds:', randomDelay);
+                await Utils.delay(randomDelay);
             }
             if (available)
                 break;
@@ -142,7 +148,11 @@ export class Navigator {
 
     async registerForCourse(course: CourseSection) {
         await this.driver.get('https://register.metu.edu.tr');
-        this.loginRegister(course.program);
+        await this.loginRegister(course.program);
+        const courseInput = await this.driver.wait(until.elementLocated(By.id('textAddCourseCode')));
+        const sectionInput = await this.driver.wait(until.elementLocated(By.id('textAddCourseSection')));
+        await courseInput.sendKeys(String(course.courseCode));
+        await sectionInput.sendKeys(String(course.section));
     }
 
     async recognize(elem: WebElement): Promise<string> {

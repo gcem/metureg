@@ -61,8 +61,8 @@ def fillCoveredPixels():
                 zeroone[x, y] = 1
 
 fillCoveredPixels()
-fillCoveredPixels()
-fillCoveredPixels()
+#fillCoveredPixels()
+#fillCoveredPixels()
 boolar = boolresult
                 
 result = boolToImg(boolresult)
@@ -82,8 +82,8 @@ def vertical():
 
 horizontal()
 vertical()
-horizontal()
-vertical()
+#horizontal()
+#vertical()
 
 result = boolToImg(boolresult)
 cv2.imwrite(IMDIR + 'cleaned.png', result)
