@@ -11,13 +11,17 @@
 
 - Make sure geckodriver is in PATH
 - Make sure Python 3 is installed
+- Install opencv module for Python 3
+> pip3 install opencv-python
 
 # Configuration
 
 - Enter credentials in *credentials.json*
-- Enter courses and sections in *courses.json* 
+- Enter courses and sections in *courses.json*
+- Change the IMAGES_PATH variable in *package.json* to an existing directory
 
 # Running
 
+- See [Configuration](#Configuration)
 - Use the provided npm scripts
 > npm start
