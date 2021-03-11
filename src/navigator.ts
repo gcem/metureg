@@ -70,7 +70,7 @@ export class Navigator {
             case "Double Major":
                 programSelect.sendKeys(Key.DOWN);
             case "Major":
-                // first in the list => no keypress
+            // first in the list => no keypress
         }
         const loginButton = await this.driver.wait(until.elementLocated(By.name('submitLogin')));
         await Utils.delay(200);
@@ -153,6 +153,7 @@ export class Navigator {
         const sectionInput = await this.driver.wait(until.elementLocated(By.id('textAddCourseSection')));
         await courseInput.sendKeys(String(course.courseCode));
         await sectionInput.sendKeys(String(course.section));
+        await this.mouseActions();
     }
 
     async recognize(elem: WebElement): Promise<string> {
@@ -167,5 +168,20 @@ export class Navigator {
 
         const chosen = this.img.recognizeCaptchas();
         return chosen;
+    }
+
+    async mouseActions() {
+        await this.driver.actions()
+            .mouseMove({ x: 58, y: 25 })
+            .pause(1000)
+            .mouseMove(await this.driver.wait(until.elementLocated(By.id('recaptcha-anchor'))))
+            .pause(50)
+            .mouseMove({x: 2, y:3})
+            .mouseDown()
+            .pause(55)
+            .mouseUp()
+            .pause(40)
+            .mouseMove({x: 100, y: 80})
+            .perform();
     }
 }
